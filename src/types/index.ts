@@ -63,9 +63,9 @@ export const VERIFICATION_STATUS_LABELS: Record<VerificationStatus, string> = {
 }
 
 export const VERIFICATION_STATUS_COLORS: Record<VerificationStatus, string> = {
-  unverified: 'bg-gray-100 text-gray-700',
-  verified: 'bg-green-100 text-green-700',
-  needs_follow_up: 'bg-yellow-100 text-yellow-700',
+  unverified: 'bg-slate-100 text-slate-700 border-slate-200',
+  verified: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  needs_follow_up: 'bg-amber-50 text-amber-700 border-amber-200',
 }
 
 export const DRAINAGE_CONDITION_LABELS: Record<DrainageCondition, string> = {
