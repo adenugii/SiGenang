@@ -1,9 +1,21 @@
 'use client'
 
-import { useActionState, useTransition } from 'react'
+import { useState } from 'react'
+import { useActionState } from 'react'
+import dynamic from 'next/dynamic'
 import { createLocation, updateLocation } from '@/app/actions'
 import { Kelurahan, LocationWithKelurahan } from '@/types'
 import CustomSelect from '@/components/ui/CustomSelect'
+
+// Dynamically import LocationPickerMap to prevent SSR leaflet errors
+const LocationPickerMap = dynamic(() => import('@/components/map/LocationPickerMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[320px] bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-sm animate-pulse border border-slate-200">
+      Memuat peta penunjuk lokasi...
+    </div>
+  ),
+})
 
 interface LokasiFormProps {
   kelurahans: Kelurahan[]
@@ -12,6 +24,14 @@ interface LokasiFormProps {
 
 export default function LokasiForm({ kelurahans, location }: LokasiFormProps) {
   const isEdit = !!location
+
+  const [lat, setLat] = useState<number | string>(location?.latitude ?? '')
+  const [lng, setLng] = useState<number | string>(location?.longitude ?? '')
+
+  const handleCoordinatesChange = (newLat: number, newLng: number) => {
+    setLat(newLat)
+    setLng(newLng)
+  }
 
   async function formAction(formData: FormData) {
     if (isEdit) {
@@ -82,39 +102,54 @@ export default function LokasiForm({ kelurahans, location }: LokasiFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Latitude <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            name="latitude"
-            required
-            step="any"
-            defaultValue={location?.latitude}
-            placeholder="-7.945"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      {/* Map Location Picker */}
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-slate-700">
+          Titik Koordinat Lokasi <span className="text-rose-500">*</span>
+        </label>
+        
+        <LocationPickerMap
+          initialLat={location?.latitude ?? null}
+          initialLng={location?.longitude ?? null}
+          onChange={handleCoordinatesChange}
+        />
+
+        <div className="grid grid-cols-2 gap-4 pt-1">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Latitude
+            </label>
+            <input
+              type="number"
+              name="latitude"
+              required
+              step="any"
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              placeholder="-7.945"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Longitude
+            </label>
+            <input
+              type="number"
+              name="longitude"
+              required
+              step="any"
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              placeholder="112.615"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Longitude <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            name="longitude"
-            required
-            step="any"
-            defaultValue={location?.longitude}
-            placeholder="112.615"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        <p className="text-xs text-slate-400">
+          * Koordinat otomatis terisi saat Anda mengklik atau menggeser pin pada peta di atas. Anda juga masih bisa mengeditnya manual jika diperlukan.
+        </p>
       </div>
-      <p className="text-xs text-gray-400 -mt-3">
-        Gunakan koordinat yang terukur (GPS/peta). Jangan menebak koordinat.
-      </p>
 
       <div>
         <label className="block text-sm font-semibold text-slate-700 mb-1.5">

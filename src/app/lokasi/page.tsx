@@ -149,18 +149,18 @@ export default async function LokasiPage({
             <table className="min-w-full divide-y divide-slate-100 text-sm">
               <thead className="bg-slate-50/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 <tr>
-                  <th className="px-6 py-3.5 text-left">Nama Lokasi & Alamat</th>
-                  <th className="px-6 py-3.5 text-left">Kelurahan</th>
-                  <th className="px-6 py-3.5 text-left">Sumber Data</th>
-                  <th className="px-6 py-3.5 text-left">Status Verifikasi</th>
-                  <th className="px-6 py-3.5 text-left">Koordinat</th>
-                  <th className="px-6 py-3.5 text-right">Aksi</th>
+                  <th className="px-5 py-3.5 text-left">Nama Lokasi & Alamat</th>
+                  <th className="px-4 py-3.5 text-left">Kelurahan</th>
+                  <th className="px-4 py-3.5 text-left">Sumber Data</th>
+                  <th className="px-4 py-3.5 text-left min-w-[190px]">Status Verifikasi</th>
+                  <th className="px-4 py-3.5 text-left whitespace-nowrap">Koordinat</th>
+                  <th className="px-5 py-3.5 text-right whitespace-nowrap min-w-[90px]">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-normal">
                 {locations.map((loc) => (
                   <tr key={loc.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-5 py-4 min-w-[220px]">
                       <Link
                         href={`/lokasi/${loc.id}`}
                         className="font-semibold text-slate-900 hover:text-blue-600 transition-colors block"
@@ -169,28 +169,28 @@ export default async function LokasiPage({
                       </Link>
                       <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{loc.address}</p>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700">
                         {loc.kelurahan?.name ?? '—'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-600">
+                    <td className="px-4 py-4 text-xs text-slate-600 whitespace-nowrap">
                       {SOURCE_TYPE_LABELS[loc.source_type] ?? loc.source_type}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <span
-                        className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${VERIFICATION_STATUS_COLORS[loc.verification_status]}`}
+                        className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium border ${VERIFICATION_STATUS_COLORS[loc.verification_status]}`}
                       >
                         {VERIFICATION_STATUS_LABELS[loc.verification_status]}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-xs font-mono text-slate-500">
+                    <td className="px-4 py-4 text-xs font-mono text-slate-500 whitespace-nowrap">
                       {loc.latitude.toFixed(5)}, {loc.longitude.toFixed(5)}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-5 py-4 text-right whitespace-nowrap">
                       <Link
                         href={`/lokasi/${loc.id}`}
-                        className="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50/60 hover:bg-blue-100/60 px-3 py-1.5 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50/80 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
                       >
                         Detail →
                       </Link>

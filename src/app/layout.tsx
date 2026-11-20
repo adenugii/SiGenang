@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
+import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import './globals.css'
 
@@ -13,6 +14,10 @@ export const metadata: Metadata = {
   title: 'SiGenang Malang | Sistem Pemetaan Titik Genangan Lowokwaru',
   description:
     'Sistem Informasi Genangan Malang – pemetaan interaktif, monitoring drainase, dan pendokumentasian bukti observasi lapangan di Kecamatan Lowokwaru, Kota Malang.',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -24,9 +29,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <footer className="bg-white border-t border-slate-200/80 py-6 text-slate-500 text-xs mt-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-slate-600 font-medium">
-              <span className="w-2 h-2 rounded-full bg-cyan-500 inline-block"></span>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 text-slate-600 font-medium">
+              <div className="relative w-5 h-5 flex-shrink-0">
+                <Image
+                  src="/logo.png"
+                  alt="SiGenang Logo"
+                  fill
+                  sizes="20px"
+                  className="object-contain"
+                />
+              </div>
               <span>SiGenang Malang · Wilayah Cakupan 12 Kelurahan Kecamatan Lowokwaru</span>
             </div>
             <p className="text-slate-400">

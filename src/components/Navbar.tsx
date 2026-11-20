@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 export default function Navbar() {
@@ -25,14 +26,21 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-              </svg>
+            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-800 to-slate-900 border border-slate-700/80 shadow-md shadow-blue-900/20 flex items-center justify-center overflow-hidden group-hover:border-cyan-500/50 group-hover:scale-105 transition-all duration-200">
+              <Image
+                src="/logo.png"
+                alt="SiGenang Logo"
+                fill
+                sizes="40px"
+                className="object-contain p-1 drop-shadow"
+                priority
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-base tracking-tight text-white">SiGenang</span>
+                <span className="font-bold text-base tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                  SiGenang
+                </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                   Lowokwaru
                 </span>
