@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useRef } from 'react'
 import { useActionState } from 'react'
 import { createObservation } from '@/app/actions'
 import { Location } from '@/types'
@@ -12,6 +13,10 @@ interface ObservasiFormProps {
 }
 
 export default function ObservasiForm({ locations, preselectedLocationId }: ObservasiFormProps) {
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [error, action, isPending] = useActionState(async (_: unknown, formData: FormData) => {
     try {
       await createObservation(formData)
@@ -20,6 +25,31 @@ export default function ObservasiForm({ locations, preselectedLocationId }: Obse
       return e instanceof Error ? e.message : 'Terjadi kesalahan.'
     }
   }, null)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhotoError(null)
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setPhotoError('Ukuran file foto maksimal adalah 5MB.')
+        if (fileInputRef.current) fileInputRef.current.value = ''
+        setPhotoPreview(null)
+        return
+      }
+      const previewUrl = URL.createObjectURL(file)
+      setPhotoPreview(previewUrl)
+    } else {
+      setPhotoPreview(null)
+    }
+  }
+
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null)
+    setPhotoError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
 
   const today = new Date().toISOString().slice(0, 16)
 
@@ -153,6 +183,56 @@ export default function ObservasiForm({ locations, preselectedLocationId }: Obse
               ]}
             />
           </div>
+        </div>
+      </div>
+
+      {/* Foto Dokumentasi */}
+      <div className="pt-2 border-t border-slate-100">
+        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+          Foto Dokumentasi Lapangan (Opsional)
+        </label>
+        <p className="text-xs text-slate-500 mb-3">
+          Unggah foto dokumentasi kondisi genangan atau saluran drainase (maks. 5MB, format JPG/PNG/WebP).
+        </p>
+
+        <div className="space-y-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            name="photo"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer border border-slate-200 rounded-xl p-1 bg-white"
+          />
+
+          {photoError && (
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-700 flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{photoError}</span>
+            </div>
+          )}
+
+          {photoPreview && (
+            <div className="relative inline-block border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+              <img
+                src={photoPreview}
+                alt="Pratinjau foto observasi"
+                className="max-h-60 max-w-full object-contain rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={handleRemovePhoto}
+                className="absolute top-2 right-2 bg-rose-600 hover:bg-rose-700 text-white p-1.5 rounded-full shadow-md text-xs transition-colors"
+                title="Hapus Foto"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

@@ -20,6 +20,7 @@ export interface Location {
   longitude: number
   source_type: SourceType
   verification_status: VerificationStatus
+  photo_url?: string | null
   notes: string | null
   created_at: string
   updated_at: string

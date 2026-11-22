@@ -2,13 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import { requireAdmin } from '@/lib/auth'
+import { createAdminClient } from '@/lib/supabase'
+import { requireAdmin, createServerClient } from '@/lib/auth'
 
 // ─── Locations ───────────────────────────────────────────────────────────────
 
 export async function createLocation(formData: FormData) {
   await requireAdmin()
+  const authClient = await createServerClient()
 
   const name = formData.get('name') as string
   const address = formData.get('address') as string
@@ -23,7 +24,39 @@ export async function createLocation(formData: FormData) {
     throw new Error('Data tidak lengkap. Mohon isi semua field yang wajib.')
   }
 
-  const { data, error } = await supabase
+  // Handle Photo Upload (Opsional)
+  let photo_url: string | null = null
+  const photoFile = formData.get('photo') as File | null
+
+  if (photoFile && photoFile.size > 0 && photoFile.name) {
+    const adminClient = createAdminClient()
+    const ext = photoFile.name.split('.').pop() || 'jpg'
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`
+    const filePath = `locations/${fileName}`
+
+    const arrayBuffer = await photoFile.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const { error: uploadError } = await adminClient.storage
+      .from('observation-photos')
+      .upload(filePath, buffer, {
+        contentType: photoFile.type || 'image/jpeg',
+        upsert: false,
+      })
+
+    if (uploadError) {
+      console.error('Upload foto lokasi error:', uploadError)
+      throw new Error(`Gagal mengunggah foto lokasi: ${uploadError.message}`)
+    }
+
+    const { data: publicUrlData } = adminClient.storage
+      .from('observation-photos')
+      .getPublicUrl(filePath)
+
+    photo_url = publicUrlData.publicUrl
+  }
+
+  const { data, error } = await authClient
     .from('locations')
     .insert({
       name,
@@ -33,6 +66,7 @@ export async function createLocation(formData: FormData) {
       longitude,
       source_type,
       verification_status: verification_status || 'unverified',
+      photo_url,
       notes,
     })
     .select('id')
@@ -50,6 +84,7 @@ export async function createLocation(formData: FormData) {
 
 export async function updateLocation(id: string, formData: FormData) {
   await requireAdmin()
+  const authClient = await createServerClient()
 
   const name = formData.get('name') as string
   const address = formData.get('address') as string
@@ -60,7 +95,40 @@ export async function updateLocation(id: string, formData: FormData) {
   const verification_status = formData.get('verification_status') as string
   const notes = (formData.get('notes') as string) || null
 
-  const { error } = await supabase
+  const existingPhotoUrl = (formData.get('existing_photo_url') as string) || null
+  const removePhoto = formData.get('remove_photo') === 'true'
+  let photo_url: string | null = removePhoto ? null : existingPhotoUrl
+
+  const photoFile = formData.get('photo') as File | null
+  if (photoFile && photoFile.size > 0 && photoFile.name) {
+    const adminClient = createAdminClient()
+    const ext = photoFile.name.split('.').pop() || 'jpg'
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`
+    const filePath = `locations/${fileName}`
+
+    const arrayBuffer = await photoFile.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const { error: uploadError } = await adminClient.storage
+      .from('observation-photos')
+      .upload(filePath, buffer, {
+        contentType: photoFile.type || 'image/jpeg',
+        upsert: false,
+      })
+
+    if (uploadError) {
+      console.error('Upload foto lokasi error:', uploadError)
+      throw new Error(`Gagal mengunggah foto lokasi: ${uploadError.message}`)
+    }
+
+    const { data: publicUrlData } = adminClient.storage
+      .from('observation-photos')
+      .getPublicUrl(filePath)
+
+    photo_url = publicUrlData.publicUrl
+  }
+
+  const { error } = await authClient
     .from('locations')
     .update({
       name,
@@ -70,6 +138,7 @@ export async function updateLocation(id: string, formData: FormData) {
       longitude,
       source_type,
       verification_status,
+      photo_url,
       notes,
       updated_at: new Date().toISOString(),
     })
@@ -88,8 +157,9 @@ export async function updateLocation(id: string, formData: FormData) {
 
 export async function deleteLocation(id: string) {
   await requireAdmin()
+  const authClient = await createServerClient()
 
-  const { error } = await supabase.from('locations').delete().eq('id', id)
+  const { error } = await authClient.from('locations').delete().eq('id', id)
 
   if (error) {
     throw new Error(`Gagal menghapus lokasi: ${error.message}`)
@@ -105,6 +175,7 @@ export async function deleteLocation(id: string) {
 
 export async function createObservation(formData: FormData) {
   await requireAdmin()
+  const authClient = await createServerClient()
 
   const location_id = formData.get('location_id') as string
   const observed_at = formData.get('observed_at') as string
@@ -121,7 +192,39 @@ export async function createObservation(formData: FormData) {
     throw new Error('Lokasi dan tanggal observasi wajib diisi.')
   }
 
-  const { data, error } = await supabase
+  // Handle Photo Upload (Opsional)
+  let photo_url: string | null = null
+  const photoFile = formData.get('photo') as File | null
+
+  if (photoFile && photoFile.size > 0 && photoFile.name) {
+    const adminClient = createAdminClient()
+    const ext = photoFile.name.split('.').pop() || 'jpg'
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`
+    const filePath = `observations/${fileName}`
+
+    const arrayBuffer = await photoFile.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const { error: uploadError } = await adminClient.storage
+      .from('observation-photos')
+      .upload(filePath, buffer, {
+        contentType: photoFile.type || 'image/jpeg',
+        upsert: false,
+      })
+
+    if (uploadError) {
+      console.error('Upload foto error:', uploadError)
+      throw new Error(`Gagal mengunggah foto: ${uploadError.message}`)
+    }
+
+    const { data: publicUrlData } = adminClient.storage
+      .from('observation-photos')
+      .getPublicUrl(filePath)
+
+    photo_url = publicUrlData.publicUrl
+  }
+
+  const { data, error } = await authClient
     .from('observations')
     .insert({
       location_id,
@@ -132,6 +235,7 @@ export async function createObservation(formData: FormData) {
       sedimentation_level: sedimentation_level || 'unknown',
       water_flow: water_flow || 'unknown',
       channel_narrowing: channel_narrowing || 'unknown',
+      photo_url,
       notes,
     })
     .select('id')
@@ -149,8 +253,9 @@ export async function createObservation(formData: FormData) {
 
 export async function deleteObservation(id: string, locationId: string) {
   await requireAdmin()
+  const authClient = await createServerClient()
 
-  const { error } = await supabase.from('observations').delete().eq('id', id)
+  const { error } = await authClient.from('observations').delete().eq('id', id)
 
   if (error) {
     throw new Error(`Gagal menghapus observasi: ${error.message}`)

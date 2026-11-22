@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useActionState } from 'react'
 import dynamic from 'next/dynamic'
 import { createLocation, updateLocation } from '@/app/actions'
@@ -28,12 +28,49 @@ export default function LokasiForm({ kelurahans, location }: LokasiFormProps) {
   const [lat, setLat] = useState<number | string>(location?.latitude ?? '')
   const [lng, setLng] = useState<number | string>(location?.longitude ?? '')
 
+  // Foto state
+  const [photoPreview, setPhotoPreview] = useState<string | null>(location?.photo_url ?? null)
+  const [removePhoto, setRemovePhoto] = useState(false)
+  const [photoError, setPhotoError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const handleCoordinatesChange = (newLat: number, newLng: number) => {
     setLat(newLat)
     setLng(newLng)
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhotoError(null)
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setPhotoError('Ukuran file foto maksimal adalah 5MB.')
+        if (fileInputRef.current) fileInputRef.current.value = ''
+        return
+      }
+      const previewUrl = URL.createObjectURL(file)
+      setPhotoPreview(previewUrl)
+      setRemovePhoto(false)
+    }
+  }
+
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null)
+    setRemovePhoto(true)
+    setPhotoError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   async function formAction(formData: FormData) {
+    if (removePhoto) {
+      formData.set('remove_photo', 'true')
+    }
+    if (location?.photo_url) {
+      formData.set('existing_photo_url', location.photo_url)
+    }
+
     if (isEdit) {
       await updateLocation(location!.id, formData)
     } else {
@@ -181,6 +218,56 @@ export default function LokasiForm({ kelurahans, location }: LokasiFormProps) {
             { value: 'needs_follow_up', label: 'Perlu Pemeriksaan Lanjutan' },
           ]}
         />
+      </div>
+
+      {/* Foto Lokasi (Opsional) */}
+      <div className="pt-2 border-t border-slate-100">
+        <label className="block text-sm font-semibold text-slate-700 mb-1">
+          Foto Gambaran Titik Lokasi (Opsional)
+        </label>
+        <p className="text-xs text-slate-500 mb-3">
+          Unggah foto kenampakan jalan, patokan landmark, atau gambaran area lokasi (maks. 5MB, format JPG/PNG/WebP).
+        </p>
+
+        <div className="space-y-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            name="photo"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-slate-200 rounded-xl p-1 bg-white"
+          />
+
+          {photoError && (
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-700 flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{photoError}</span>
+            </div>
+          )}
+
+          {photoPreview && (
+            <div className="relative inline-block border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+              <img
+                src={photoPreview}
+                alt="Pratinjau foto lokasi"
+                className="max-h-60 max-w-full object-contain rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={handleRemovePhoto}
+                className="absolute top-2 right-2 bg-rose-600 hover:bg-rose-700 text-white p-1.5 rounded-full shadow-md text-xs transition-colors"
+                title="Hapus Foto"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div>
