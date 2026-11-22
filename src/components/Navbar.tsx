@@ -4,8 +4,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { logoutAction } from '@/app/admin/login/actions'
 
-export default function Navbar() {
+interface NavbarProps {
+  isAdmin: boolean
+}
+
+export default function Navbar({ isAdmin }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
@@ -67,6 +72,33 @@ export default function Navbar() {
                 </Link>
               )
             })}
+
+            {/* Auth area */}
+            {isAdmin ? (
+              <div className="ml-2 flex items-center gap-2 pl-2 border-l border-slate-700">
+                <span className="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                  Admin
+                </span>
+                <form action={logoutAction}>
+                  <button
+                    type="submit"
+                    className="text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition-all"
+                  >
+                    Logout
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="ml-2 pl-2 border-l border-slate-700">
+                <Link
+                  href="/admin/login"
+                  className="text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition-all"
+                >
+                  Login Admin
+                </Link>
+              </div>
+            )}
           </nav>
 
           {/* Mobile Hamburger Button */}
@@ -111,6 +143,34 @@ export default function Navbar() {
               </Link>
             )
           })}
+
+          {/* Mobile auth */}
+          <div className="pt-2 mt-2 border-t border-slate-800">
+            {isAdmin ? (
+              <div className="flex items-center justify-between px-4 py-2">
+                <span className="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                  Mode Admin Aktif
+                </span>
+                <form action={logoutAction}>
+                  <button
+                    type="submit"
+                    className="text-xs text-slate-400 hover:text-red-400 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <Link
+                href="/admin/login"
+                onClick={() => setIsOpen(false)}
+                className="block px-4 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+              >
+                Login Admin
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </header>

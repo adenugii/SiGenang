@@ -13,6 +13,7 @@ import {
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import DeleteLocationButton from './DeleteLocationButton'
+import { isAdmin } from '@/lib/auth'
 
 async function getLocationDetail(id: string) {
   const [{ data: location }, { data: observations }] = await Promise.all([
@@ -36,7 +37,10 @@ async function getLocationDetail(id: string) {
 
 export default async function LokasiDetailPage({ params }: PageProps<'/lokasi/[id]'>) {
   const { id } = await params
-  const { location, observations } = await getLocationDetail(id)
+  const [{ location, observations }, adminLoggedIn] = await Promise.all([
+    getLocationDetail(id),
+    isAdmin(),
+  ])
 
   if (!location) return notFound()
 
@@ -111,25 +115,29 @@ export default async function LokasiDetailPage({ params }: PageProps<'/lokasi/[i
         </div>
 
         <div className="pt-2 flex gap-3 flex-wrap">
-          <Link
-            href={`/lokasi/${location.id}/edit`}
-            className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Edit Lokasi
-          </Link>
-          <Link
-            href={`/observasi/baru?location_id=${location.id}`}
-            className="text-sm bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-          >
-            + Tambah Observasi
-          </Link>
+          {adminLoggedIn && (
+            <>
+              <Link
+                href={`/lokasi/${location.id}/edit`}
+                className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Edit Lokasi
+              </Link>
+              <Link
+                href={`/observasi/baru?location_id=${location.id}`}
+                className="text-sm bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                + Tambah Observasi
+              </Link>
+            </>
+          )}
           <Link
             href={`/peta`}
             className="text-sm border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Lihat di Peta
           </Link>
-          <DeleteLocationButton id={location.id} />
+          {adminLoggedIn && <DeleteLocationButton id={location.id} />}
         </div>
       </div>
 
@@ -144,12 +152,14 @@ export default async function LokasiDetailPage({ params }: PageProps<'/lokasi/[i
         {observations.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
             <p className="text-gray-400 text-sm">Belum ada observasi untuk lokasi ini.</p>
-            <Link
-              href={`/observasi/baru?location_id=${location.id}`}
-              className="mt-2 inline-block text-sm text-blue-600 hover:underline"
-            >
-              Tambah observasi pertama →
-            </Link>
+            {adminLoggedIn && (
+              <Link
+                href={`/observasi/baru?location_id=${location.id}`}
+                className="mt-2 inline-block text-sm text-blue-600 hover:underline"
+              >
+                Tambah observasi pertama →
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-3">

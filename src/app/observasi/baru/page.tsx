@@ -19,23 +19,26 @@ export default async function ObservasiBaruPage({
   const locations = await getLocations()
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div className="text-sm text-gray-500 flex items-center gap-1">
+    <div className="max-w-3xl space-y-6">
+      {/* Breadcrumb */}
+      <div className="text-sm text-slate-500 flex items-center gap-1.5 font-medium">
         <Link href="/observasi" className="hover:underline text-teal-600">
           Observasi
         </Link>
-        <span>/</span>
-        <span className="text-gray-700">Tambah Observasi</span>
+        <span className="text-slate-400">/</span>
+        <span className="text-slate-700">Tambah Observasi</span>
       </div>
 
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Tambah Observasi</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Catat hasil pemeriksaan lapangan untuk suatu lokasi.
+      {/* Header */}
+      <div className="pb-4 border-b border-slate-200">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Tambah Hasil Observasi Lapangan</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Catat data hasil verifikasi, tinggi genangan, kondisi aliran, dan sedimentasi drainase.
         </p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      {/* Form Container */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs">
         <ObservasiForm locations={locations} preselectedLocationId={preselectedLocationId} />
       </div>
     </div>

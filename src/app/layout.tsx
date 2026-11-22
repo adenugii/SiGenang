@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
+import { isAdmin } from '@/lib/auth'
 import './globals.css'
 
 const fontSans = Plus_Jakarta_Sans({
@@ -20,11 +21,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const adminLoggedIn = await isAdmin()
+
   return (
     <html lang="id" className={`${fontSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-cyan-500 selection:text-white">
-        <Navbar />
+        <Navbar isAdmin={adminLoggedIn} />
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </main>
@@ -43,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span>SiGenang Malang · Wilayah Cakupan 12 Kelurahan Kecamatan Lowokwaru</span>
             </div>
             <p className="text-slate-400">
-              Proyek Inisiatif Smart City · Pemetaan & Verifikasi Lapangan Drainase
+              Proyek Inisiatif Smart City · Pemetaan &amp; Verifikasi Lapangan Drainase
             </p>
           </div>
         </footer>

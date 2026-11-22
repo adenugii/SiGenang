@@ -3,10 +3,13 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/auth'
 
 // ─── Locations ───────────────────────────────────────────────────────────────
 
 export async function createLocation(formData: FormData) {
+  await requireAdmin()
+
   const name = formData.get('name') as string
   const address = formData.get('address') as string
   const kelurahan_id = parseInt(formData.get('kelurahan_id') as string)
@@ -46,6 +49,8 @@ export async function createLocation(formData: FormData) {
 }
 
 export async function updateLocation(id: string, formData: FormData) {
+  await requireAdmin()
+
   const name = formData.get('name') as string
   const address = formData.get('address') as string
   const kelurahan_id = parseInt(formData.get('kelurahan_id') as string)
@@ -82,6 +87,8 @@ export async function updateLocation(id: string, formData: FormData) {
 }
 
 export async function deleteLocation(id: string) {
+  await requireAdmin()
+
   const { error } = await supabase.from('locations').delete().eq('id', id)
 
   if (error) {
@@ -97,6 +104,8 @@ export async function deleteLocation(id: string) {
 // ─── Observations ─────────────────────────────────────────────────────────────
 
 export async function createObservation(formData: FormData) {
+  await requireAdmin()
+
   const location_id = formData.get('location_id') as string
   const observed_at = formData.get('observed_at') as string
   const flood_history = (formData.get('flood_history') as string) || null
@@ -139,6 +148,8 @@ export async function createObservation(formData: FormData) {
 }
 
 export async function deleteObservation(id: string, locationId: string) {
+  await requireAdmin()
+
   const { error } = await supabase.from('observations').delete().eq('id', id)
 
   if (error) {
