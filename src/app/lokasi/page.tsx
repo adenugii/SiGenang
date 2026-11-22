@@ -8,6 +8,7 @@ import {
 } from '@/types'
 import Link from 'next/link'
 import CustomSelect from '@/components/ui/CustomSelect'
+import { isAdmin } from '@/lib/auth'
 
 async function getLokasiData(kelurahanId?: number, search?: string) {
   let query = supabase
@@ -39,9 +40,10 @@ export default async function LokasiPage({
   const kelurahanId = params.kelurahan ? parseInt(params.kelurahan as string) : undefined
   const search = params.q as string | undefined
 
-  const [{ locations, error }, kelurahans] = await Promise.all([
+  const [{ locations, error }, kelurahans, adminLoggedIn] = await Promise.all([
     getLokasiData(kelurahanId, search),
     getKelurahans(),
+    isAdmin(),
   ])
 
   return (
@@ -59,15 +61,17 @@ export default async function LokasiPage({
             Daftar titik inventarisasi genangan dan kondisi drainase di wilayah Kecamatan Lowokwaru.
           </p>
         </div>
-        <Link
-          href="/lokasi/baru"
-          className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/25 transition-all"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-          Tambah Titik Lokasi
-        </Link>
+        {adminLoggedIn && (
+          <Link
+            href="/lokasi/baru"
+            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/25 transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Titik Lokasi
+          </Link>
+        )}
       </div>
 
       {/* Filter Bar */}
@@ -136,12 +140,14 @@ export default async function LokasiPage({
           <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto">
             Mulai inventarisasi titik genangan air dengan menambahkan titik lokasi koordinat baru.
           </p>
-          <Link
-            href="/lokasi/baru"
-            className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700"
-          >
-            + Tambah Titik Pertama Sekarang →
-          </Link>
+          {adminLoggedIn && (
+            <Link
+              href="/lokasi/baru"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700"
+            >
+              + Tambah Titik Pertama Sekarang →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
