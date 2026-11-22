@@ -8,9 +8,9 @@ export const AUTH_COOKIE = 'sb-session'
 
 /**
  * Buat Supabase client dengan token dari cookie.
- * Digunakan di Server Components / Server Actions untuk membaca sesi admin.
+ * Digunakan di Server Components / Server Actions untuk membaca sesi admin atau menjalankan aksi sebagai authenticated user.
  */
-async function createServerClient() {
+export async function createServerClient() {
   const cookieStore = await cookies()
   const session = cookieStore.get(AUTH_COOKIE)?.value
   let parsedSession: { access_token: string; refresh_token: string } | null = null

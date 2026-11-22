@@ -92,6 +92,20 @@ export default async function LokasiDetailPage({ params }: PageProps<'/lokasi/[i
               <p className="text-gray-800 mt-0.5 whitespace-pre-wrap">{location.notes}</p>
             </div>
           )}
+          {location.photo_url && (
+            <div className="col-span-full pt-2">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-2">
+                Foto Gambaran Titik Lokasi
+              </p>
+              <div className="rounded-xl overflow-hidden border border-gray-200 inline-block bg-slate-50">
+                <img
+                  src={location.photo_url}
+                  alt={`Foto ${location.name}`}
+                  className="max-w-full max-h-72 object-contain rounded-lg"
+                />
+              </div>
+            </div>
+          )}
           <div>
             <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Ditambahkan</p>
             <p className="text-gray-800 mt-0.5">
