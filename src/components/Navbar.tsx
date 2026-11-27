@@ -21,6 +21,8 @@ export default function Navbar({ isAdmin }: NavbarProps) {
     { href: '/observasi', label: 'Observasi' },
   ]
 
+  const reportLink = { href: '/laporan/baru', label: 'Laporkan Genangan' }
+
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
     return pathname.startsWith(href)
@@ -72,6 +74,23 @@ export default function Navbar({ isAdmin }: NavbarProps) {
                 </Link>
               )
             })}
+
+            {/* Tombol Lapor — terlihat untuk semua user */}
+            <div className="ml-1">
+              <Link
+                href={reportLink.href}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive(reportLink.href)
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-orange-500/10 text-orange-400 border border-orange-500/25 hover:bg-orange-500/20 hover:text-orange-300'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                {reportLink.label}
+              </Link>
+            </div>
 
             {/* Auth area */}
             {isAdmin ? (
@@ -143,6 +162,22 @@ export default function Navbar({ isAdmin }: NavbarProps) {
               </Link>
             )
           })}
+
+          {/* Mobile Laporan Button */}
+          <Link
+            href={reportLink.href}
+            onClick={() => setIsOpen(false)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors mt-1 ${
+              isActive(reportLink.href)
+                ? 'bg-orange-500/20 text-orange-300'
+                : 'text-orange-400 hover:text-orange-300 hover:bg-orange-500/10'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            {reportLink.label}
+          </Link>
 
           {/* Mobile auth */}
           <div className="pt-2 mt-2 border-t border-slate-800">

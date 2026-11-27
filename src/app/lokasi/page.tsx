@@ -61,7 +61,7 @@ export default async function LokasiPage({
             Daftar titik inventarisasi genangan dan kondisi drainase di wilayah Kecamatan Lowokwaru.
           </p>
         </div>
-        {adminLoggedIn && (
+        {adminLoggedIn ? (
           <Link
             href="/lokasi/baru"
             className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/25 transition-all"
@@ -70,6 +70,16 @@ export default async function LokasiPage({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
             Tambah Titik Lokasi
+          </Link>
+        ) : (
+          <Link
+            href="/laporan/baru"
+            className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm shadow-orange-500/20 hover:shadow-md hover:shadow-orange-500/25 transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Laporkan Genangan
           </Link>
         )}
       </div>
